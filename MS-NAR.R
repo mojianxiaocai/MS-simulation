@@ -1,4 +1,4 @@
-source('NAR_helper.R')
+source('MS-NAR_helper.R')
 
 ###################### Generate three network structures
 ###################### ##########################################
@@ -27,7 +27,7 @@ object.size(A)
 set.seed(1234)
 beta=c(0.3,0.2,0.3,0.7)
 gamma0 = c(-0.5, 0.3, 0.8, 0, 0)  ### true parameter for gamma
-
+theta=c(beta,gamma0,0.5,0.5,1,1)### beta, gamma0, p1,p2,delta1,delta2
 W = getDyadW(N = 100, N1 = 10, delta = -0.8, normalize = TRUE)
 G1 = beta[2] * W + beta[3] * diag(1, nrow(W))
 G2 = beta[2] * W + beta[4] * diag(1, nrow(W))
