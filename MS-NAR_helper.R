@@ -3,7 +3,7 @@ library(Matrix)
 #library(car)
 library(MASS)
 #library(poweRlaw)  ### for power-law distribution
-
+library(markovchain) ###for generating a Markov chain
 ### OLS estimation for theta: eq (2.8)
 betaOLS <- function(Ymat, W, Z) {
   Ymat1 = W %*% Ymat  ### obtain WY
@@ -36,8 +36,15 @@ mvrnorm.Autoreg <- function(n, p, rho = 0.5) {
 getY <- function(Y0, Beta0, Beta, W, sig = 1, Time = 10) {
   Ymat = matrix(0, nrow = length(Beta0), ncol = Time + 1)  ### use Ymat to store the simulated data
   Ymat[, 1] = as.vector(Y0)  ### the first column of Ymat is assigned Y0
-  st=rbinom(Time,1,0.5)
-  for (i in 1:Time) {
+  
+  statesNames <- c("0", "1")
+  mcB <- new("markovchain", states = statesNames,
+             transitionMatrix = matrix(c(p11,1-p11,1-p22,p22),
+                                       nrow = 2, byrow = TRUE, dimnames = list(statesNames, statesNames)))
+  outs <- rmarkovchain(n = 10, object = mcB, what = "list")
+  
+  
+    for (i in 1:Time) {
     Ymat[, i + 1] = as.vector(Beta0 + Beta[1] * W %*% Ymat[, i] + (Beta[2]+(Beta[3]-Beta[2])*st[i]) * 
                                 Ymat[, i] + rnorm(length(Beta0), sd = sig))  ### follow the NAR model to simulate Y time series
   }
