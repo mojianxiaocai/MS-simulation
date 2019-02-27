@@ -1,12 +1,12 @@
 source('MS-NAR_helper.R')
-Nsize=50
-Time=100
-beta=c(0.3,0.2,0.3,0.7)
-p11=0.7
-p22=0.4
+Nsize=100 #node number 
+Time=100 #sample number 
+beta=c(0.3,0.2,0.3,0.7) #parameter
+p11=0.7   #Transition probability
+p22=0.4   
 Beta = beta[2:4]
 sig=1
-theta=c(beta,p11,p22,1,1)
+theta=c(beta,p11,p22,sig,sig)
 W = getDyadW(N = Nsize, N1 = 10, delta = -0.8, normalize = TRUE)
 G1 = beta[2] * W + beta[3] * diag(1, nrow(W))
 G2 = beta[2] * W + beta[4] * diag(1, nrow(W))

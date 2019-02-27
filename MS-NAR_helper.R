@@ -4,6 +4,8 @@ library(Matrix)
 library(MASS)
 #library(poweRlaw)  ### for power-law distribution
 library(markovchain) ###for generating a Markov chain
+library(mvtnorm) ###to get the density of multi-norm distribution
+
 ### OLS estimation for theta: eq (2.8)
 betaOLS <- function(Ymat, W, Z) {
   Ymat1 = W %*% Ymat  ### obtain WY
