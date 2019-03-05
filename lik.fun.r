@@ -22,24 +22,24 @@ lik<-function(theta,Ymat,W){
   
   dist.1<-0
   for(i in 1:Time){
-    dist.1<-rbind(dist.1,dmvnorm(error1[((i-1)*N+1):(i*N)],sigma=sigma1))
+    dist.1<-rbind(dist.1,dmvnorm(error1[((i-1)*N+1):(i*N)]))
   }
   dist.2 <- 0
   for(i in 1:Time){
-    dist.2<-rbind(dist.2,dmvnorm(error2[((i-1)*N+1):(i*N)],sigma=sigma2))
+    dist.2<-rbind(dist.2,dmvnorm(error2[((i-1)*N+1):(i*N)]))
   }  
   dist <- cbind(dist.1[-1], dist.2[-1])
   o.v <- c(1,1)
   P <- matrix(c(p11, 1-p11, 1- p22, p22), nrow=2, ncol=2)
-  #nstates=2
+  nstates=2
   xi.a <- rep(0,2*Time)
   xi.a <- matrix(xi.a, nrow=Time,ncol=2)
   xi.b <- rep(0,2*Time)
   xi.b <- matrix(xi.b, nrow=Time,ncol=2)
   model.lik <- rep(0, Time)
-  #A=rbind(diag(nstates) - P, rep(1, nstates))
-  #xi.a[1,] <- (solve(t(A) %*% A) %*% t(A))[, nstates + 1]
-  xi.a[1,]<-(c(p11,p22)*dist[1,])/as.numeric(o.v%*%(c(p11,p22)*dist[1,]))
+  A=rbind(diag(nstates) - P, rep(1, nstates))
+  xi.a[1,] <- (solve(t(A) %*% A) %*% t(A))[, nstates + 1]
+  #xi.a[1,]<-(c(p11,p22)*dist[1,])/as.numeric(o.v%*%(c(p11,p22)*dist[1,]))
   for(i in 1:(Time-1)){
     xi.b[i+1,]<-P%*%xi.a[i,]
     xi.a[i+1,]<-(xi.b[i+1,]*dist[i+1,])/as.numeric(o.v%*%(xi.b[i+1,]*dist[i+1,]))
@@ -52,5 +52,5 @@ lik<-function(theta,Ymat,W){
 theta.start <- c(0.3,0.2,0.3,0.7,0.7,0.4,1,1)
 theta <- rep(0.5,length(theta.start))
 
-max.lik.optim <- optim(theta, lik ,Ymat=Ymat, W=W,method= "BFGS", hessian=T)
+max.lik.optim <- optim(theta.start, lik ,Ymat=Ymat, W=W,method= "BFGS", hessian=T)
 max.lik.optim$par

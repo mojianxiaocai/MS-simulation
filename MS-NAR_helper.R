@@ -179,3 +179,78 @@ getPowerLawW <- function(N, alpha, normalize = T) {
   W = A/rowSums(A)
   return(W)
 } 
+
+
+
+
+############## likelihood function for MS
+lik<-function(theta,Ymat,W){
+  Ymat1=W%*%Ymat
+  Time=ncol(Ymat)-1
+  N=nrow(Ymat)
+  X = cbind(rep(1, nrow(Ymat) * Time), as.vector(Ymat1[, -ncol(Ymat)]), 
+            as.vector(Ymat[, -ncol(Ymat)]),do.call("rbind",rep(list(Z),Time)))
+  Yvec = as.vector(Ymat[, -1])
+  temp1=X%*%c(theta[-c(4,5:8)])
+  temp2=X%*%c(theta[-c(3,5:8)])
+  alpha1 <- theta[1]#beta0
+  alpha2 <- theta[2]#beta1
+  alpha3 <- theta[3]#beta2_1
+  alpha4 <- theta[4]#beta2_2
+  alpha5 <- theta[7] #delta_1
+  alpha6 <- theta[8] #delta_2
+  p11 <-theta[5]
+  p22 <-theta[6]
+  error1=(Yvec-temp1)
+  error2=(Yvec-temp2)
+  sigma1=diag(rep(alpha5^2,N),N)
+  sigma2=diag(rep(alpha6^2,N),N)
+  
+  dist.1<-0
+  for(i in 1:Time){
+    dist.1<-rbind(dist.1,dmvnorm(error1[((i-1)*N+1):(i*N)],sigma = sigma1))
+  }
+  dist.2 <- 0
+  for(i in 1:Time){
+    dist.2<-rbind(dist.2,dmvnorm(error2[((i-1)*N+1):(i*N)],sigma = sigma2 ))
+  }  
+  dist <- cbind(dist.1[-1], dist.2[-1])
+  o.v <- c(1,1)
+  P <- matrix(c(p11, 1-p11, 1- p22, p22), nrow=2, ncol=2)
+  nstates=2
+  xi.a <- rep(0,2*Time)
+  xi.a <- matrix(xi.a, nrow=Time,ncol=2)
+  xi.b <- rep(0,2*Time)
+  xi.b <- matrix(xi.b, nrow=Time,ncol=2)
+  model.lik <- rep(0, Time)
+  A=rbind(diag(nstates) - P, rep(1, nstates))
+  xi.a[1,] <- (solve(t(A) %*% A) %*% t(A))[, nstates + 1]
+  #xi.a[1,]<-(c(p11,p22)*dist[1,])/as.numeric(o.v%*%(c(p11,p22)*dist[1,]))
+  for(i in 1:(Time-1)){
+    xi.b[i+1,]<-P%*%xi.a[i,]
+    xi.a[i+1,]<-(xi.b[i+1,]*dist[i+1,])/as.numeric(o.v%*%(xi.b[i+1,]*dist[i+1,]))
+    model.lik[i+1]<-o.v%*%(xi.b[i+1,]*dist[i+1,])
+  }
+  logl <- sum(log(model.lik[2:length(model.lik)]))
+  return(-logl)
+}
+
+###################new generate data
+simu.Ymat<-function(W,beta0,Beta,G=G,Time= Time, Z=Z, sig = 1, Nsize= Nsize){
+  mu = getMu(G[[1]], rep(beta0,Nsize)+Z%*%gamma0)
+  Gamma0 = getGamma0Approx(G[[1]], sigma = sig)
+  Y0 = mvrnorm(n = 1, mu = mu, Sigma = Gamma0)
+  Ymat = matrix(0, nrow = Nsize, ncol = Time + 1)  ### use Ymat to store the simulated data
+  Ymat[, 1] = as.vector(Y0)  ### the first column of Ymat is assigned Y0
+  statesNames <- c("0", "1")
+  mcB <- new("markovchain", states = statesNames,
+             transitionMatrix = matrix(c(p11,1-p11,1-p22,p22),
+                                       nrow = 2, byrow = TRUE, dimnames = list(statesNames, statesNames)))
+  st <- rmarkovchain(n = Time, object = mcB, what = "list")
+  st=as.numeric(st)
+  for (i in 1:Time) {
+    Ymat[, i + 1] = as.vector(rep(beta0,Nsize)+Z%*%gamma0+ Beta[1] * W %*% Ymat[, i] + (Beta[2]+(Beta[3]-Beta[2])*st[i]) * 
+                                Ymat[, i] + rnorm(Nsize, sd = sig))  ### follow the NAR model to simulate Y time series
+  }
+  return(Ymat)
+}
