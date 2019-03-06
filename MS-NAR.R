@@ -3,8 +3,8 @@ ptm<-proc.time()
 
 #############Generate the Responses
 set.seed(1992)
-Nsize=100 #node number 
-Time=20 #sample number 
+Nsize=300 #node number 
+Time=100 #sample number 
 beta=c(0.3,0.2,0.3,0.7) #parameter
 p11=0.7   #Transition probability
 p22=0.4   
@@ -44,5 +44,5 @@ error<-apply(num2,1,sum)/Nrep
 colnames(result)<-c("beta0","beta1","beta2_1","beta2_2","p11","p22","delta1","delta2","gamma1","gamma2","gamma3","gamma4","gamma5")
 proc.time()-ptm
 
-write.csv(result,"MS-Simulation_result_T10.csv")
+write.csv(result,"MS-Simulation_result_T100_N300.csv")
 
