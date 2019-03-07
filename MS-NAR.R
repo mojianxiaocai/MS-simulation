@@ -3,8 +3,8 @@ ptm<-proc.time()
 
 #############Generate the Responses
 set.seed(1992)
-Nsize=300 #node number 
-Time=100 #sample number 
+Nsize=400 #node number 
+Time=50 #sample number 
 beta=c(0.3,0.2,0.3,0.7) #parameter
 p11=0.7   #Transition probability
 p22=0.4   
@@ -33,7 +33,7 @@ num2<-matrix(rep(NA,Nrep*length(theta)),nrow=length(theta))
 
 for(k in 1:Nrep){
   Ymat=simu.Ymat(W, beta0 = beta[1], Beta = beta[2:4], Time = Time, G = G, Z = Z, sig = 1,Nsize = Nsize)
-  max.lik.optim <- optim(theta.start, lik ,Ymat=Ymat, W=W,method= "BFGS", hessian=T)
+  max.lik.optim <- optim(theta.start, lik ,Ymat=Ymat, W=W,method= "BFGS", hessian=FALSE)
   num[,k]<-max.lik.optim$par
   num2[,k]<-(theta-max.lik.optim$par)^2
 }
@@ -44,5 +44,5 @@ error<-apply(num2,1,sum)/Nrep
 colnames(result)<-c("beta0","beta1","beta2_1","beta2_2","p11","p22","delta1","delta2","gamma1","gamma2","gamma3","gamma4","gamma5")
 proc.time()-ptm
 
-write.csv(result,"MS-Simulation_result_T100_N300.csv")
+write.csv(result,"MS-Simulation_result_T50_N400.csv")
 
