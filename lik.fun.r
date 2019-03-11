@@ -22,11 +22,11 @@ lik<-function(theta,Ymat,W){
   
   dist.1<-0
   for(i in 1:Time){
-    dist.1<-rbind(dist.1,dmvnorm(error1[((i-1)*N+1):(i*N)]))
+    dist.1<-rbind(dist.1,dmvnorm(error1[((i-1)*N+1):(i*N)],log = TRUE))
   }
   dist.2 <- 0
   for(i in 1:Time){
-    dist.2<-rbind(dist.2,dmvnorm(error2[((i-1)*N+1):(i*N)]))
+    dist.2<-rbind(dist.2,dmvnorm(error2[((i-1)*N+1):(i*N)],log = TRUE))
   }  
   dist <- cbind(dist.1[-1], dist.2[-1])
   o.v <- c(1,1)
