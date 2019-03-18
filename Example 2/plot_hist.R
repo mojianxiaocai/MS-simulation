@@ -38,10 +38,10 @@ f[,1]=rep("T100N100",nrow(f))
 g=read.csv("T100_N300_aae.csv")
 g[,1]=rep("T100N300",nrow(g))
 aae2=rbind(s,a,b,c,d,e,f,g)
-colnames(aae2)<-c("size","AAE")
-#aae=list(T20N300=a,T20N00=b,T50N100=c,T50N300=d,T50N400=e,T100N100=f,T100N300=g)
-#data=as.data.frame(aae)
+colnames(aae2)<-c("size","aae")
+aae=list(T20N300=a,T20N00=b,T50N100=c,T50N300=d,T50N400=e,T100N100=f,T100N300=g)
+data=as.data.frame(aae)
 
-ggplot(aae2,aes(size,AAE,file=size))+
-  geom_boxplot(alpha=0.5, outlier.shape = NA)
+ggplot(aae2,aes(size,aae,file=size))+
+  geom_boxplot(alpha=0.9, outlier.shape = NA)
 ?geom_boxplot
