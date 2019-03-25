@@ -1,12 +1,12 @@
 #setwd("H:/chengjie/TNAR simulation/MS-NAR simulation")
-install.packages("markovchain")
+#install.packages("markovchain")
 source('MS-NAR_helper.R')
 ptm<-proc.time()
 
 #############Generate the Responses
 set.seed(1992)
-K=20
-Nsize=100 #node number 
+K=5
+Nsize=300 #node number 
 Time=30 #sample number 
 beta=c(0.3,0.2,0.3,0.7) #parameter
 p11=0.7   #Transition probability
@@ -29,12 +29,13 @@ Z=mvrnorm(n=Nsize,mu=rep(0,nrow(ZSigma)), Sigma=ZSigma) ## Z~N(0,ZSigma)
 theta.start <- c(0.5,0.5,0.5,0.5,0.5,0.5,2,2,0.5,0.5,0.5,0.5,0.5)
 
 
+set.seed(1992)
 
-Nrep=1
+Nrep=5
 num <- matrix(rep(NA,Nrep*length(theta)),nrow=length(theta))
 num2<-matrix(rep(NA,Nrep*length(theta)),nrow=length(theta))
 num3<-matrix(rep(NA,Nrep*length(theta)),nrow=length(theta))
-
+k=2
 for(k in 1:Nrep){
   Ymat=simu.Ymat(W, beta0 = beta[1], Beta = beta[2:4], Time = Time, G = G, Z = Z, sig = 1,Nsize = Nsize)
   max.lik.optim <- try(optim(theta.start, lik ,Ymat=Ymat, W=W,method= "BFGS", hessian=FALSE))
@@ -42,8 +43,18 @@ for(k in 1:Nrep){
     next
   }
   num[,k]<-max.lik.optim$par
-  num2[,k]<-(theta-max.lik.optim$par)^2
-  num3[,k]<-abs(theta-max.lik.optim$par) 
+  if(num[3,k]>num[4,k]){
+    sub=num[3,k]
+    num[3,k]=num[4,k]
+    num[4,k]=sub
+  }
+  if(num[5,k]>num[6,k]){
+    sub=num[5,k]
+    num[5,k]=num[6,k]
+    num[6,k]=sub
+  }
+  num2[,k]<-(theta-num[,k])^2
+  num3[,k]<-abs(theta-num[,k]) 
 }
 
 estimation<-(apply(num,1,mean))
@@ -58,6 +69,6 @@ colnames(CI)<-c("0.05","0.25","0.5","0.75","0.95")
 colnames(result)<-c("beta0","beta1","beta2_1","beta2_2","p11","p22","delta1","delta2","gamma1","gamma2","gamma3","gamma4","gamma5")
 proc.time()-ptm
 
-write.csv(result,"MS-Simulation_result_K20_N100.csv")
-write.csv(aae,"K20_N100_aae.csv")
+write.csv(result,"MS-Simulation_result_K5_N300.csv")
+write.csv(aae,"K5_N300_aae.csv")
 

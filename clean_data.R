@@ -3,6 +3,8 @@ num2<-num2[,1:300]
 
 num<-num[,-which(abs(num[6,])>10)]
 num2<-num2[,-which(num2[6,]>10)]
+num3<-num3[,-which(num3[6,]>10)]
+
 estimation<-(apply(num[,1:79],1,mean))
 error<-apply(num2[,1:79],1,sum)/Nrep
 CI=matrix(rep(NA,5*length(theta)),nrow=length(theta))
